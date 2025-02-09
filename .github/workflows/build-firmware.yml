@@ -1,0 +1,36 @@
+name: Build Firmware
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:  # Ermöglicht das manuelle Starten des Workflows
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up PlatformIO
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build Firmware
+        run: pio run
+
+      - name: Copy Firmware to Artifacts
+        run: |
+          mkdir -p artifacts
+          cp .pio/build/c3/firmware.bin artifacts/
+          cp .pio/build/c3/firmware.elf artifacts/
+
+      - name: Upload Firmware as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: artifacts/
